@@ -49,7 +49,7 @@ export function TaskSubtasks({ task }: TaskSubtasksProps) {
               <div
                 key={subtask.id}
                 className={cn(
-                  'rounded-xl border border-border bg-secondary/30 p-3 transition-all duration-200 hover:bg-secondary/50',
+                  'rounded-xl border border-border bg-secondary/30 p-3 transition-all duration-200 hover:bg-secondary/50 overflow-hidden',
                   subtask.status === 'in_progress' && 'border-[var(--info)]/50 bg-[var(--info-light)] ring-1 ring-info/20',
                   subtask.status === 'completed' && 'border-[var(--success)]/50 bg-[var(--success-light)]',
                   subtask.status === 'failed' && 'border-[var(--error)]/50 bg-[var(--error-light)]'
@@ -81,7 +81,7 @@ export function TaskSubtasks({ task }: TaskSubtasksProps) {
                     </div>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 cursor-default">
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 cursor-default break-words">
                           {subtask.description}
                         </p>
                       </TooltipTrigger>
