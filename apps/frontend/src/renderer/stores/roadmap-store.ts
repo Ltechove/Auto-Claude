@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type {
+  Competitor,
   CompetitorAnalysis,
+  ManualCompetitorInput,
   Roadmap,
   RoadmapFeature,
   RoadmapFeatureStatus,
@@ -68,6 +70,8 @@ interface RoadmapState {
   reorderFeatures: (phaseId: string, featureIds: string[]) => void;
   updateFeaturePhase: (featureId: string, newPhaseId: string) => void;
   addFeature: (feature: Omit<RoadmapFeature, 'id'>) => string;
+  addCompetitor: (input: ManualCompetitorInput) => string;
+  updateCompetitorAnalysis: (analysis: CompetitorAnalysis) => void;
 }
 
 const initialGenerationStatus: RoadmapGenerationStatus = {
@@ -261,7 +265,64 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
     });
 
     return newId;
-  }
+  },
+
+  // Add a manual competitor to the competitor analysis
+  addCompetitor: (input) => {
+    const newId = `competitor-manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newCompetitor: Competitor = {
+      id: newId,
+      name: input.name,
+      url: input.url,
+      description: input.description,
+      relevance: input.relevance,
+      painPoints: [],
+      strengths: [],
+      marketPosition: '',
+      source: 'manual'
+    };
+
+    set((state) => {
+      const existing = state.competitorAnalysis;
+      if (existing) {
+        return {
+          competitorAnalysis: {
+            ...existing,
+            competitors: [...existing.competitors, newCompetitor]
+          }
+        };
+      }
+
+      // Create a new CompetitorAnalysis with sensible defaults
+      return {
+        competitorAnalysis: {
+          projectContext: {
+            projectName: '',
+            projectType: '',
+            targetAudience: ''
+          },
+          competitors: [newCompetitor],
+          marketGaps: [],
+          insightsSummary: {
+            topPainPoints: [],
+            differentiatorOpportunities: [],
+            marketTrends: []
+          },
+          researchMetadata: {
+            searchQueriesUsed: [],
+            sourcesConsulted: [],
+            limitations: []
+          },
+          createdAt: new Date()
+        }
+      };
+    });
+
+    return newId;
+  },
+
+  // Replace the entire competitor analysis object
+  updateCompetitorAnalysis: (analysis) => set({ competitorAnalysis: analysis })
 }));
 
 /**
