@@ -429,7 +429,19 @@
     "suggestedTask": "Suggested Task",
     "creating": "Creating...",
     "taskCreated": "Task Created",
-    "createTask": "Create Task"
+    "createTask": "Create Task",
+    "images": {
+      "pasteHint": "Paste an image or screenshot",
+      "dropHint": "Drop image here",
+      "screenshotButton": "Attach screenshot",
+      "removeImage": "Remove image",
+      "imageCount": "{{count}} image attached",
+      "imageCount_plural": "{{count}} images attached",
+      "maxImagesReached": "Maximum number of images reached",
+      "invalidType": "Invalid file type. Please use PNG, JPEG, GIF, or WebP.",
+      "processFailed": "Failed to process image",
+      "dragOver": "Drop image to attach"
+    }
   },
   "ideation": {
     "converting": "Converting...",
