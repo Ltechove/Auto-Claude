@@ -189,6 +189,23 @@
     "addCompetitor": "Ajouter le concurrent",
     "failedToAdd": "Échec de l'ajout du concurrent"
   },
+  "competitorAnalysis": {
+    "title": "Activer l'analyse concurrentielle ?",
+    "description": "Améliorez votre feuille de route avec des informations sur les produits concurrents",
+    "whatItDoes": "Ce que fait l'analyse concurrentielle :",
+    "identifiesCompetitors": "Identifie 3 à 5 concurrents principaux en fonction de votre type de projet",
+    "searchesAppStores": "Recherche dans les magasins d'applications, forums et réseaux sociaux les retours et points de douleur des utilisateurs",
+    "suggestsFeatures": "Suggère des fonctionnalités qui comblent les lacunes des produits concurrents",
+    "webSearchesTitle": "Des recherches web seront effectuées",
+    "webSearchesDescription": "Cette fonctionnalité effectuera des recherches web pour recueillir des informations sur les concurrents. Le nom et le type de votre projet seront utilisés dans les requêtes de recherche. Aucun code ni donnée sensible n'est partagé.",
+    "optionalInfo": "Vous pouvez générer une feuille de route sans analyse concurrentielle si vous préférez. La feuille de route sera toujours basée sur la structure de votre projet et les meilleures pratiques.",
+    "skipAnalysis": "Non, ignorer l'analyse",
+    "enableAnalysis": "Oui, activer l'analyse",
+    "knowYourCompetitors": "Vous connaissez déjà vos concurrents ?",
+    "addThemDirectly": "Ajoutez-les directement pour améliorer la précision de l'analyse",
+    "addKnownCompetitors": "Ajouter des concurrents connus",
+    "competitorsAdded": "{{count}} ajouté(s)"
+  },
   "versionWarning": {
     "title": "Action requise",
     "subtitle": "Mise à jour version 2.7.5",

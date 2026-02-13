@@ -189,6 +189,23 @@
     "addCompetitor": "Add Competitor",
     "failedToAdd": "Failed to add competitor"
   },
+  "competitorAnalysis": {
+    "title": "Enable Competitor Analysis?",
+    "description": "Enhance your roadmap with insights from competitor products",
+    "whatItDoes": "What competitor analysis does:",
+    "identifiesCompetitors": "Identifies 3-5 main competitors based on your project type",
+    "searchesAppStores": "Searches app stores, forums, and social media for user feedback and pain points",
+    "suggestsFeatures": "Suggests features that address gaps in competitor products",
+    "webSearchesTitle": "Web searches will be performed",
+    "webSearchesDescription": "This feature will perform web searches to gather competitor information. Your project name and type will be used in search queries. No code or sensitive data is shared.",
+    "optionalInfo": "You can generate a roadmap without competitor analysis if you prefer. The roadmap will still be based on your project structure and best practices.",
+    "skipAnalysis": "No, Skip Analysis",
+    "enableAnalysis": "Yes, Enable Analysis",
+    "knowYourCompetitors": "Already know your competitors?",
+    "addThemDirectly": "Add them directly to improve analysis accuracy",
+    "addKnownCompetitors": "Add Known Competitors",
+    "competitorsAdded": "{{count}} added"
+  },
   "versionWarning": {
     "title": "Action Required",
     "subtitle": "Version 2.7.5 Update",
