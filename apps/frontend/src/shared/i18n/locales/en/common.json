@@ -11,6 +11,7 @@
   },
   "accessibility": {
     "deleteFeatureAriaLabel": "Delete feature",
+    "archiveFeatureAriaLabel": "Archive feature",
     "closeFeatureDetailsAriaLabel": "Close feature details",
     "regenerateRoadmapAriaLabel": "Regenerate Roadmap",
     "repositoryOwnerAriaLabel": "Repository owner",
@@ -602,7 +603,8 @@
     "taskArchived": "Archived",
     "showMoreFeatures": "Show {{count}} more feature",
     "showMoreFeatures_plural": "Show {{count}} more features",
-    "showLessFeatures": "Show less"
+    "showLessFeatures": "Show less",
+    "archiveFeature": "Archive"
   },
   "roadmapGeneration": {
     "progress": "Progress",
