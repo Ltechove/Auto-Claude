@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, RefreshCw, TrendingUp, CheckCircle, UserPlus } from 'lucide-react';
 import {
@@ -18,6 +18,7 @@ interface ExistingCompetitorAnalysisDialogProps {
   onUseExisting: () => void;
   onRunNew: () => void;
   onSkip: () => void;
+  onCompetitorAdded?: (competitorId: string) => void;
   analysisDate?: Date;
   projectId: string;
 }
@@ -28,11 +29,19 @@ export function ExistingCompetitorAnalysisDialog({
   onUseExisting,
   onRunNew,
   onSkip,
+  onCompetitorAdded,
   analysisDate,
   projectId,
 }: ExistingCompetitorAnalysisDialogProps) {
   const { t, i18n } = useTranslation(['dialogs']);
   const [showAddDialog, setShowAddDialog] = useState(false);
+
+  // Reset child dialog state when this dialog reopens
+  useEffect(() => {
+    if (open) {
+      setShowAddDialog(false);
+    }
+  }, [open]);
 
   const handleUseExisting = () => {
     onUseExisting();
@@ -75,6 +84,7 @@ export function ExistingCompetitorAnalysisDialog({
           <div className="py-4 space-y-3">
             {/* Option 1: Use existing (recommended) */}
             <button
+              type="button"
               onClick={handleUseExisting}
               className="w-full rounded-lg bg-primary/10 border border-primary/30 p-4 text-left hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
@@ -94,6 +104,7 @@ export function ExistingCompetitorAnalysisDialog({
 
             {/* Option 2: Run new analysis */}
             <button
+              type="button"
               onClick={handleRunNew}
               className="w-full rounded-lg bg-muted/50 border border-border p-4 text-left hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
@@ -112,6 +123,7 @@ export function ExistingCompetitorAnalysisDialog({
 
             {/* Option 3: Add known competitors */}
             <button
+              type="button"
               onClick={() => setShowAddDialog(true)}
               className="w-full rounded-lg bg-muted/50 border border-border p-4 text-left hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
@@ -130,6 +142,7 @@ export function ExistingCompetitorAnalysisDialog({
 
             {/* Option 4: Skip */}
             <button
+              type="button"
               onClick={handleSkip}
               className="w-full rounded-lg bg-muted/30 border border-border/50 p-4 text-left hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
@@ -158,6 +171,7 @@ export function ExistingCompetitorAnalysisDialog({
       <AddCompetitorDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
+        onCompetitorAdded={onCompetitorAdded}
         projectId={projectId}
       />
     </>

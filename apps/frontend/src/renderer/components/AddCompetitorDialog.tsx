@@ -21,7 +21,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -142,6 +142,9 @@ export function AddCompetitorDialog({
     setError(null);
 
     try {
+      // Capture pre-add state for complete rollback
+      const previousAnalysis = useRoadmapStore.getState().competitorAnalysis;
+
       // Add competitor to store
       const newCompetitorId = addCompetitor({
         name: name.trim(),
@@ -156,7 +159,7 @@ export function AddCompetitorDialog({
         const result = await window.electronAPI.saveCompetitorAnalysis(projectId, competitorAnalysis);
         if (!result.success) {
           // Rollback store state since save failed
-          useRoadmapStore.getState().removeCompetitor(newCompetitorId);
+          useRoadmapStore.getState().setCompetitorAnalysis(previousAnalysis);
           throw new Error(result.error || t('addCompetitor.failedToAdd'));
         }
       }
@@ -262,7 +265,7 @@ export function AddCompetitorDialog({
           {/* Error */}
           {error && (
             <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive" role="alert">
-              <X className="h-4 w-4 mt-0.5 shrink-0" />
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
           )}

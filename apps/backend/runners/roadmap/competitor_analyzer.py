@@ -42,7 +42,10 @@ class CompetitorAnalyzer:
         """
         if not enabled:
             print_status("Competitor analysis not enabled, skipping", "info")
+            manual_competitors = self._get_manual_competitors()
             self._create_disabled_analysis_file()
+            if manual_competitors:
+                self._merge_manual_competitors(manual_competitors)
             return RoadmapPhaseResult(
                 "competitor_analysis", True, [str(self.analysis_file)], [], 0
             )
@@ -133,7 +136,8 @@ class CompetitorAnalyzer:
                 for c in data.get("competitors", [])
                 if isinstance(c, dict) and c.get("source") == "manual"
             ]
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as e:
+            print_status(f"Warning: could not read manual competitors: {e}", "warning")
             return []
 
     def _merge_manual_competitors(self, manual_competitors: list[dict]) -> None:
@@ -195,8 +199,11 @@ Output your findings to competitor_analysis.json.
                     "competitor_analysis", True, [str(self.analysis_file)], [], 0
                 )
 
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            print_status(
+                f"Warning: competitor analysis file is not valid JSON: {e}",
+                "warning",
+            )
 
         return None
 

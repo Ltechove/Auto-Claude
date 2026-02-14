@@ -877,7 +877,8 @@ ${(feature.acceptance_criteria || []).map((c: string) => `- [ ] ${c}`).join("\n"
 
           await writeFileWithRetry(
             competitorAnalysisPath,
-            JSON.stringify(serialized, null, 2)
+            JSON.stringify(serialized, null, 2),
+            { encoding: 'utf-8' }
           );
         });
 
