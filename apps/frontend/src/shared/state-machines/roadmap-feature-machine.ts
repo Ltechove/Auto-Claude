@@ -1,9 +1,10 @@
 import { assign, createMachine } from 'xstate';
+import type { TaskOutcome, RoadmapFeatureStatus } from '../types/roadmap';
 
 export interface RoadmapFeatureContext {
   linkedSpecId?: string;
-  taskOutcome?: string;
-  previousStatus?: string;
+  taskOutcome?: TaskOutcome;
+  previousStatus?: RoadmapFeatureStatus;
 }
 
 export type RoadmapFeatureEvent =
@@ -42,6 +43,18 @@ export const roadmapFeatureMachine = createMachine(
           MARK_DONE: {
             target: 'done',
             actions: 'savePreviousUnderReview'
+          },
+          TASK_COMPLETED: {
+            target: 'done',
+            actions: ['savePreviousUnderReview', 'setTaskOutcomeCompleted']
+          },
+          TASK_DELETED: {
+            target: 'done',
+            actions: ['savePreviousUnderReview', 'setTaskOutcomeDeleted']
+          },
+          TASK_ARCHIVED: {
+            target: 'done',
+            actions: ['savePreviousUnderReview', 'setTaskOutcomeArchived']
           }
         }
       },

@@ -290,9 +290,25 @@ describe('roadmapFeatureMachine', () => {
   });
 
   describe('task events from various states', () => {
-    it('should ignore TASK_COMPLETED from under_review', () => {
+    it('should transition TASK_COMPLETED from under_review to done', () => {
       const snapshot = runEvents([{ type: 'TASK_COMPLETED' }]);
-      expect(snapshot.value).toBe('under_review');
+      expect(snapshot.value).toBe('done');
+      expect(snapshot.context.taskOutcome).toBe('completed');
+      expect(snapshot.context.previousStatus).toBe('under_review');
+    });
+
+    it('should transition TASK_DELETED from under_review to done', () => {
+      const snapshot = runEvents([{ type: 'TASK_DELETED' }]);
+      expect(snapshot.value).toBe('done');
+      expect(snapshot.context.taskOutcome).toBe('deleted');
+      expect(snapshot.context.previousStatus).toBe('under_review');
+    });
+
+    it('should transition TASK_ARCHIVED from under_review to done', () => {
+      const snapshot = runEvents([{ type: 'TASK_ARCHIVED' }]);
+      expect(snapshot.value).toBe('done');
+      expect(snapshot.context.taskOutcome).toBe('archived');
+      expect(snapshot.context.previousStatus).toBe('under_review');
     });
 
     it('should transition TASK_DELETED from planned to done', () => {
