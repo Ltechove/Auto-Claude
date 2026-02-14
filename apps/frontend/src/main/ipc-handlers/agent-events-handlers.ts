@@ -96,6 +96,17 @@ export function registerAgenteventsHandlers(
 
     taskStateManager.handleProcessExited(taskId, code, exitTask, exitProject);
 
+    // Fallback safety net: If XState failed to transition the task out of in_progress,
+    // force it to human_review after a short delay. This prevents tasks from getting stuck
+    // in in_progress state when the process exits without XState properly handling it.
+    setTimeout(() => {
+      const { task: checkTask } = findTaskAndProject(taskId, projectId);
+      if (checkTask && checkTask.status === 'in_progress') {
+        console.warn(`[agent-events-handlers] Task ${taskId} still in_progress 500ms after exit, forcing to human_review`);
+        taskStateManager.forceTransition(taskId, 'human_review', 'errors', checkTask, exitProject);
+      }
+    }, 500);
+
     // Send final plan state to renderer BEFORE unwatching
     // This ensures the renderer has the final subtask data (fixes 0/0 subtask bug)
     const finalPlan = fileWatcher.getCurrentPlan(taskId);
@@ -225,9 +236,12 @@ export function registerAgenteventsHandlers(
       console.debug(`[agent-events-handlers] Skipping persistPlanPhaseSync for ${taskId}: XState in '${currentXState}', not overwriting with phase '${progress.phase}'`);
     }
 
-    // Skip sending execution-progress to renderer when XState has settled.
-    // XState's emitPhaseFromState already sent the correct phase to the renderer.
-    if (xstateInTerminalState) {
+    // Skip sending execution-progress to renderer when XState has settled,
+    // UNLESS this is a final phase update (complete/failed).
+    // Final phase updates must still propagate to renderer even after XState settles,
+    // otherwise the UI never receives the final progress state.
+    const isFinalPhaseUpdate = progress.phase === 'complete' || progress.phase === 'failed';
+    if (xstateInTerminalState && !isFinalPhaseUpdate) {
       console.debug(`[agent-events-handlers] Skipping execution-progress to renderer for ${taskId}: XState in '${currentXState}', ignoring phase '${progress.phase}'`);
       return;
     }
