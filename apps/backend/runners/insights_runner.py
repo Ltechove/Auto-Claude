@@ -114,7 +114,7 @@ def load_project_context(project_dir: str) -> str:
 
 
 ALLOWED_MIME_TYPES = frozenset(
-    ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/svg+xml"]
+    ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"]
 )
 
 MAX_IMAGE_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
@@ -180,7 +180,7 @@ def load_images_from_manifest(manifest_path: str) -> list[dict]:
                 continue
 
             try:
-                with open(image_path, "rb") as img_f:
+                with open(resolved, "rb") as img_f:
                     image_data = base64.b64encode(img_f.read()).decode("utf-8")
                 images.append(
                     {
@@ -325,30 +325,30 @@ Current question: {message}"""
                     image_count=len(images),
                 )
 
-                # The SDK query() accepts a string; pass JSON-encoded content blocks
-                # as a structured prompt that includes image references
-                # If the SDK doesn't support content blocks directly, fall back to
-                # text-only with image file path references
+                # SDK query() accepts str | AsyncIterable[dict] — use AsyncIterable
+                # to pass multi-modal content blocks in the user message
+                async def image_query_stream():
+                    yield {
+                        "type": "user",
+                        "message": {"role": "user", "content": content_blocks},
+                        "parent_tool_use_id": None,
+                        "session_id": "",
+                    }
+
                 try:
-                    await client.query(content_blocks)
-                except TypeError as e:
-                    # Only catch TypeErrors related to query() argument type mismatch
-                    error_msg = str(e).lower()
-                    if (
-                        "str" in error_msg
-                        or "string" in error_msg
-                        or "expected" in error_msg
-                        or "argument" in error_msg
-                    ):
-                        debug(
-                            "insights_runner",
-                            "SDK does not support content blocks, falling back to text-only",
-                            error=str(e),
-                        )
-                        image_note = f"\n\n[Note: The user attached {len(images)} image(s) but multi-modal input is not supported in this mode. Please ask the user to describe the image content instead.]"
-                        await client.query(full_prompt + image_note)
-                    else:
-                        raise  # Re-raise unexpected TypeErrors
+                    await client.query(image_query_stream())
+                except (TypeError, ValueError) as e:
+                    debug(
+                        "insights_runner",
+                        "SDK does not support content blocks via AsyncIterable, falling back to text-only",
+                        error=str(e),
+                    )
+                    image_note = f"\n\n[Note: The user attached {len(images)} image(s) but multi-modal input is not supported in this SDK version. Please describe the image content instead.]"
+                    print(
+                        f"Warning: Image attachments could not be sent to the model and were skipped. The model was notified.",
+                        file=sys.stderr,
+                    )
+                    await client.query(full_prompt + image_note)
             else:
                 # Send the query as plain text
                 await client.query(full_prompt)

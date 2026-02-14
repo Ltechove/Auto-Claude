@@ -109,13 +109,13 @@ export class InsightsExecutor extends EventEmitter {
     let imagesManifestFile: string | undefined;
 
     // Safe extension map for image MIME types — prevents path traversal via crafted mimeType
+    // SVG excluded: contains active script content and is unsupported by Claude Vision API
     const SAFE_EXT_MAP: Record<string, string> = {
       'image/png': 'png',
       'image/jpeg': 'jpg',
       'image/jpg': 'jpg',
       'image/gif': 'gif',
-      'image/webp': 'webp',
-      'image/svg+xml': 'svg'
+      'image/webp': 'webp'
     };
 
     if (images && images.length > 0) {
@@ -190,7 +190,10 @@ export class InsightsExecutor extends EventEmitter {
     this.activeSessions.set(projectId, proc);
 
     // Shared cleanup for temp files used across close/error handlers
+    let cleanedUp = false;
     const cleanupTempFiles = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
       if (historyFileCreated && existsSync(historyFile)) {
         try {
           unlinkSync(historyFile);
