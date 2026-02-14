@@ -225,10 +225,15 @@ export class TerminalManager {
   /**
    * Resume Claude in a terminal asynchronously (non-blocking)
    */
-  async resumeClaudeAsync(id: string, sessionId?: string, options?: { migratedSession?: boolean }): Promise<void> {
+  async resumeClaudeAsync(id: string, sessionId?: string, options?: { migratedSession?: boolean; dangerouslySkipPermissions?: boolean }): Promise<void> {
     const terminal = this.terminals.get(id);
     if (!terminal) {
       return;
+    }
+
+    // Preserve YOLO mode flag if passed from profile swap flow
+    if (options?.dangerouslySkipPermissions !== undefined) {
+      terminal.dangerouslySkipPermissions = options.dangerouslySkipPermissions;
     }
 
     await ClaudeIntegration.resumeClaudeAsync(terminal, sessionId, this.getWindow, options);
@@ -295,7 +300,7 @@ export class TerminalManager {
     // Mark swap state: capturing session
     terminal.swapState = {
       isSwapping: true,
-      phase: 'capturing_session',
+      phase: 'capturing',
       targetProfileId,
       sourceProfileId,
       sessionMigrated: false
@@ -323,16 +328,6 @@ export class TerminalManager {
     terminal.swapState.sessionMigrated = true;
     terminal.swapState.phase = 'recreating';
     debugLog('[terminal-manager] Session migrated successfully for terminal:', terminalId);
-
-    // Notify renderer about swap progress
-    const win = this.getWindow();
-    if (win && !win.isDestroyed()) {
-      win.webContents.send('TERMINAL_SWAP_PROGRESS', {
-        terminalId,
-        phase: 'migrating',
-        sessionMigrated: true
-      });
-    }
 
     return { sessionMigrated: true, sessionId, isClaudeMode };
   }
@@ -470,7 +465,8 @@ export class TerminalManager {
         projectPath: terminal.projectPath,
         claudeSessionId: terminal.claudeSessionId,
         claudeProfileId: terminal.claudeProfileId,
-        isClaudeMode: terminal.isClaudeMode
+        isClaudeMode: terminal.isClaudeMode,
+        dangerouslySkipPermissions: terminal.dangerouslySkipPermissions
       });
     }
 

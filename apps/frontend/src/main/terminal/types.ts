@@ -36,7 +36,7 @@ export interface TerminalProcess {
  * Phase of a terminal account swap operation
  */
 export type TerminalSwapPhase =
-  | 'capturing_session'
+  | 'capturing'
   | 'migrating'
   | 'recreating'
   | 'resuming';
@@ -130,4 +130,5 @@ export interface TerminalProfileChangeInfo {
   claudeSessionId?: string;
   claudeProfileId?: string;
   isClaudeMode: boolean;
+  dangerouslySkipPermissions?: boolean;
 }

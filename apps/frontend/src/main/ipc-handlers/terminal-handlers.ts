@@ -253,6 +253,7 @@ export function registerTerminalHandlers(
             sessionId?: string;
             sessionMigrated?: boolean;
             isClaudeMode?: boolean;
+            dangerouslySkipPermissions?: boolean;
           }> = [];
 
           // Process each terminal
@@ -290,7 +291,8 @@ export function registerTerminalHandlers(
               id: terminal.id,
               sessionId: terminal.claudeSessionId,
               sessionMigrated,
-              isClaudeMode: terminal.isClaudeMode
+              isClaudeMode: terminal.isClaudeMode,
+              dangerouslySkipPermissions: terminal.dangerouslySkipPermissions
             });
           }
 
@@ -615,7 +617,7 @@ export function registerTerminalHandlers(
 
   ipcMain.on(
     IPC_CHANNELS.TERMINAL_RESUME_CLAUDE,
-    (_, id: string, sessionId?: string, options?: { migratedSession?: boolean }) => {
+    (_, id: string, sessionId?: string, options?: { migratedSession?: boolean; dangerouslySkipPermissions?: boolean }) => {
       // Use async version to avoid blocking main process during CLI detection
       terminalManager.resumeClaudeAsync(id, sessionId, options).catch((error) => {
         console.warn('[terminal-handlers] Failed to resume Claude:', error);

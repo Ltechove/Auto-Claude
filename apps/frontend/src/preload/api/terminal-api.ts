@@ -166,7 +166,7 @@ export const createTerminalAPI = (): TerminalAPI => ({
   clearTerminalSessions: (projectPath: string): Promise<IPCResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.TERMINAL_CLEAR_SESSIONS, projectPath),
 
-  resumeClaudeInTerminal: (id: string, sessionId?: string, options?: { migratedSession?: boolean }): void =>
+  resumeClaudeInTerminal: (id: string, sessionId?: string, options?: { migratedSession?: boolean; dangerouslySkipPermissions?: boolean }): void =>
     ipcRenderer.send(IPC_CHANNELS.TERMINAL_RESUME_CLAUDE, id, sessionId, options),
 
   activateDeferredClaudeResume: (id: string): void =>

@@ -76,6 +76,15 @@ describe('terminalMachine', () => {
       expect(snapshot.context.profileId).toBe('profile-1');
     });
 
+    it('should transition from shell_ready directly to claude_active on CLAUDE_ACTIVE', () => {
+      const snapshot = runEvents([
+        { type: 'SHELL_READY' },
+        { type: 'CLAUDE_ACTIVE', claudeSessionId: 'session-direct' },
+      ]);
+      expect(snapshot.value).toBe('claude_active');
+      expect(snapshot.context.claudeSessionId).toBe('session-direct');
+    });
+
     it('should transition from claude_starting to claude_active', () => {
       const snapshot = runEvents([
         { type: 'SHELL_READY' },
@@ -224,6 +233,26 @@ describe('terminalMachine', () => {
   });
 
   describe('deferred resume: pending_resume → claude_active', () => {
+    it('should transition from shell_ready to pending_resume on RESUME_REQUESTED', () => {
+      const snapshot = runEvents([
+        { type: 'SHELL_READY' },
+        { type: 'RESUME_REQUESTED', claudeSessionId: 'session-1' },
+      ]);
+      expect(snapshot.value).toBe('pending_resume');
+      expect(snapshot.context.claudeSessionId).toBe('session-1');
+    });
+
+    it('should transition from claude_active to pending_resume on RESUME_REQUESTED', () => {
+      const snapshot = runEvents([
+        { type: 'SHELL_READY' },
+        { type: 'CLAUDE_START', profileId: 'profile-1' },
+        { type: 'CLAUDE_ACTIVE', claudeSessionId: 'session-1' },
+        { type: 'RESUME_REQUESTED', claudeSessionId: 'session-2' },
+      ]);
+      expect(snapshot.value).toBe('pending_resume');
+      expect(snapshot.context.claudeSessionId).toBe('session-2');
+    });
+
     it('should transition to claude_active on RESUME_COMPLETE', () => {
       const snapshot = runEvents(
         [{ type: 'RESUME_COMPLETE', claudeSessionId: 'resumed-session' }],

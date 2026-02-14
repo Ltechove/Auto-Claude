@@ -393,6 +393,11 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   },
 
   setTerminalStatus: (id: string, status: TerminalStatus) => {
+    // Notify XState machine when terminal becomes running (shell is ready)
+    if (status === 'running') {
+      sendTerminalMachineEvent(id, { type: 'SHELL_READY' });
+    }
+
     set((state) => ({
       terminals: state.terminals.map((t) =>
         t.id === id ? { ...t, status } : t
@@ -403,6 +408,11 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   setClaudeMode: (id: string, isClaudeMode: boolean) => {
     // Send corresponding event to XState machine
     if (isClaudeMode) {
+      // Ensure machine has transitioned past idle before sending CLAUDE_ACTIVE
+      const actor = getOrCreateTerminalActor(id);
+      if (String(actor.getSnapshot().value) === 'idle') {
+        sendTerminalMachineEvent(id, { type: 'SHELL_READY' });
+      }
       sendTerminalMachineEvent(id, { type: 'CLAUDE_ACTIVE' });
     } else {
       sendTerminalMachineEvent(id, { type: 'CLAUDE_EXITED' });

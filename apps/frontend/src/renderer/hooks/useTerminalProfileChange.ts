@@ -17,7 +17,8 @@ export function useTerminalProfileChange(): void {
   const recreateTerminal = useCallback(async (
     terminalId: string,
     sessionId?: string,
-    sessionMigrated?: boolean
+    sessionMigrated?: boolean,
+    dangerouslySkipPermissions?: boolean
   ) => {
     // Prevent duplicate recreation
     if (recreatingTerminals.current.has(terminalId)) {
@@ -107,21 +108,14 @@ export function useTerminalProfileChange(): void {
         // Store the session ID for tracking
         store.setClaudeSessionId(newTerminal.id, sessionId);
 
-        try {
-          // Auto-resume the Claude session with --continue
-          // YOLO mode (dangerouslySkipPermissions) is preserved on the main process
-          // terminal object, so resumeClaudeAsync will pick it up automatically
-          window.electronAPI.resumeClaudeInTerminal(
-            newTerminal.id,
-            sessionId,
-            { migratedSession: true }
-          );
-          debugLog('[useTerminalProfileChange] Resume initiated for terminal:', newTerminal.id);
-        } catch (error) {
-          debugError('[useTerminalProfileChange] Failed to auto-resume Claude session:', error);
-          // Leave terminal at shell prompt - user can manually resume if needed
-          store.setPendingClaudeResume(newTerminal.id, true);
-        }
+        // Auto-resume the Claude session with --continue
+        // Pass dangerouslySkipPermissions so the new terminal preserves YOLO mode
+        window.electronAPI.resumeClaudeInTerminal(
+          newTerminal.id,
+          sessionId,
+          { migratedSession: true, dangerouslySkipPermissions }
+        );
+        debugLog('[useTerminalProfileChange] Resume initiated for terminal:', newTerminal.id);
       }
 
     } finally {
@@ -142,7 +136,8 @@ export function useTerminalProfileChange(): void {
         await recreateTerminal(
           terminalInfo.id,
           terminalInfo.sessionId,
-          terminalInfo.sessionMigrated
+          terminalInfo.sessionMigrated,
+          terminalInfo.dangerouslySkipPermissions
         );
       }
 

@@ -62,6 +62,8 @@ export const terminalMachine = createMachine(
       shell_ready: {
         on: {
           CLAUDE_START: { target: 'claude_starting', actions: 'setProfileId' },
+          CLAUDE_ACTIVE: { target: 'claude_active', actions: 'setClaudeSessionId' },
+          RESUME_REQUESTED: { target: 'pending_resume', actions: 'setClaudeSessionId' },
           SHELL_EXITED: { target: 'exited', actions: 'clearSession' },
           RESET: { target: 'idle', actions: 'resetContext' },
         },
@@ -83,6 +85,7 @@ export const terminalMachine = createMachine(
             guard: 'hasActiveSession',
             actions: 'setSwapTarget',
           },
+          RESUME_REQUESTED: { target: 'pending_resume', actions: 'setClaudeSessionId' },
           SHELL_EXITED: { target: 'exited', actions: 'clearSession' },
           RESET: { target: 'idle', actions: 'resetContext' },
         },
@@ -129,7 +132,6 @@ export const terminalMachine = createMachine(
   {
     guards: {
       hasActiveSession: ({ context }) => context.claudeSessionId !== undefined,
-      isSwapping: ({ context }) => context.swapTargetProfileId !== undefined,
     },
     actions: {
       setProfileId: assign({
@@ -141,6 +143,7 @@ export const terminalMachine = createMachine(
         claudeSessionId: ({ event }) => {
           if (event.type === 'CLAUDE_ACTIVE') return event.claudeSessionId;
           if (event.type === 'RESUME_COMPLETE') return event.claudeSessionId;
+          if (event.type === 'RESUME_REQUESTED') return event.claudeSessionId;
           return undefined;
         },
         isBusy: () => false,
