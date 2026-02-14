@@ -89,9 +89,12 @@ export class PRReviewStateManager {
 
   handleAuthChange(): void {
     for (const [key, actor] of this.actors) {
+      // Capture the last known snapshot before stopping so the emitted payload
+      // contains the real projectId/prNumber instead of zeros.
+      const snapshot = actor.getSnapshot();
       actor.stop();
       // Emit cleared (idle) state to renderer for each PR
-      this.emitStateToRenderer(key, null);
+      this.emitClearedState(key, snapshot?.context ?? null);
     }
     this.actors.clear();
     this.lastStateByPR.clear();
@@ -163,6 +166,33 @@ export class PRReviewStateManager {
       error: ctx?.error ?? null,
       isExternalReview: ctx?.isExternalReview ?? false,
       isFollowup: ctx?.isFollowup ?? false,
+    };
+
+    safeSendToRenderer(
+      this.getMainWindow,
+      IPC_CHANNELS.GITHUB_PR_REVIEW_STATE_CHANGE,
+      key,
+      payload
+    );
+  }
+
+  /**
+   * Emit a cleared (idle) state using context from the last snapshot
+   * so the payload contains the real projectId/prNumber.
+   */
+  private emitClearedState(key: string, ctx: PRReviewContext | null): void {
+    const payload: PRReviewStatePayload = {
+      state: 'idle',
+      prNumber: ctx?.prNumber ?? 0,
+      projectId: ctx?.projectId ?? '',
+      isReviewing: false,
+      startedAt: null,
+      progress: null,
+      result: null,
+      previousResult: null,
+      error: null,
+      isExternalReview: false,
+      isFollowup: false,
     };
 
     safeSendToRenderer(

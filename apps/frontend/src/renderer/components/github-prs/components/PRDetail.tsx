@@ -417,12 +417,22 @@ export function PRDetail({
     const MAX_POLL_DURATION_MS = 30 * 60 * 1000; // 30 minutes
     const pollStart = Date.now();
 
+    let notified = false;
+
     const pollForCompletion = async () => {
+      // Skip if we already notified (prevents duplicate notifications before React cleanup)
+      if (notified) return;
+
       // Timeout: stop polling after 30 minutes to avoid indefinite polling
       if (Date.now() - pollStart > MAX_POLL_DURATION_MS) {
         console.warn('[PRDetail] External review polling timed out after 30 minutes');
-        // Notify main process so the XState actor transitions to error state
-        await window.electronAPI.github.notifyExternalReviewComplete(projectId, pr.number, null);
+        notified = true;
+        try {
+          // Notify main process so the XState actor transitions to error state
+          await window.electronAPI.github.notifyExternalReviewComplete(projectId, pr.number, null);
+        } catch {
+          // Non-critical — state manager timeout is a best-effort notification
+        }
         return;
       }
 
@@ -433,6 +443,7 @@ export function PRDetail({
           // Otherwise this is a stale result from a previous review still on disk
           // (in-progress results are intentionally NOT saved to disk).
           if (startedAt && result.reviewedAt && new Date(result.reviewedAt) > new Date(startedAt)) {
+            notified = true;
             // Notify main process so the XState actor transitions to completed state
             await window.electronAPI.github.notifyExternalReviewComplete(projectId, pr.number, result);
           }
