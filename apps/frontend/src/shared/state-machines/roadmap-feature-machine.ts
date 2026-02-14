@@ -174,12 +174,12 @@ export const roadmapFeatureMachine = createMachine(
         linkedSpecId: ({ event }) =>
           event.type === 'LINK_SPEC' ? event.specId : undefined
       }),
-      savePreviousUnderReview: assign({ previousStatus: () => 'under_review' }),
-      savePreviousPlanned: assign({ previousStatus: () => 'planned' }),
-      savePreviousInProgress: assign({ previousStatus: () => 'in_progress' }),
-      setTaskOutcomeCompleted: assign({ taskOutcome: () => 'completed' }),
-      setTaskOutcomeDeleted: assign({ taskOutcome: () => 'deleted' }),
-      setTaskOutcomeArchived: assign({ taskOutcome: () => 'archived' }),
+      savePreviousUnderReview: assign({ previousStatus: () => 'under_review' as const }),
+      savePreviousPlanned: assign({ previousStatus: () => 'planned' as const }),
+      savePreviousInProgress: assign({ previousStatus: () => 'in_progress' as const }),
+      setTaskOutcomeCompleted: assign({ taskOutcome: () => 'completed' as const }),
+      setTaskOutcomeDeleted: assign({ taskOutcome: () => 'deleted' as const }),
+      setTaskOutcomeArchived: assign({ taskOutcome: () => 'archived' as const }),
       clearDoneContext: assign({
         taskOutcome: () => undefined,
         previousStatus: () => undefined

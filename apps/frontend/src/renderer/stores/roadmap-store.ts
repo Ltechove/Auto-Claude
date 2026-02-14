@@ -265,6 +265,9 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
     const derivedStatus = mapFeatureStateToStatus(String(snapshot.value));
     const ctx = snapshot.context;
 
+    // Skip store write if XState silently ignored the event (no-op transition)
+    if (derivedStatus === feature.status && ctx.taskOutcome === feature.taskOutcome && ctx.previousStatus === feature.previousStatus) return;
+
     set((s) => {
       if (!s.roadmap) return s;
       const updatedFeatures = s.roadmap.features.map((f) =>
@@ -363,16 +366,16 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
     });
   },
 
-  deleteFeature: (featureId) =>
+  deleteFeature: (featureId) => {
+    // Stop and remove the feature's actor outside set()
+    const actor = featureActors.get(featureId);
+    if (actor) {
+      actor.stop();
+      featureActors.delete(featureId);
+    }
+
     set((state) => {
       if (!state.roadmap) return state;
-
-      // Stop and remove the feature's actor
-      const actor = featureActors.get(featureId);
-      if (actor) {
-        actor.stop();
-        featureActors.delete(featureId);
-      }
 
       const updatedFeatures = state.roadmap.features.filter(
         (feature) => feature.id !== featureId
@@ -385,7 +388,8 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
           updatedAt: new Date()
         }
       };
-    }),
+    });
+  },
 
   clearRoadmap: () => {
     // Stop all actors and clear Maps
