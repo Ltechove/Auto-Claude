@@ -141,22 +141,33 @@ export class InsightsService extends EventEmitter {
       session.title = this.storage.generateTitle(message);
     }
 
-    // Add user message
+    // Add user message (store thumbnails only for persistence, strip full data)
+    const persistImages = images?.map(img => ({
+      ...img,
+      data: undefined,
+      thumbnail: img.thumbnail
+    }));
     const userMessage: InsightsChatMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
+      images: persistImages && persistImages.length > 0 ? persistImages : undefined
     };
     session.messages.push(userMessage);
     session.updatedAt = new Date();
     this.sessionManager.saveSession(projectPath, session);
 
     // Build conversation history for context
-    const conversationHistory = session.messages.map(m => ({
-      role: m.role,
-      content: m.content
-    }));
+    // Add notation when images are present so the AI has context
+    const conversationHistory = session.messages.map(m => {
+      const imageCount = m.images?.length ?? 0;
+      const imageNotation = imageCount > 0 ? `\n[User attached ${imageCount} image(s)]` : '';
+      return {
+        role: m.role,
+        content: m.role === 'user' && imageNotation ? m.content + imageNotation : m.content
+      };
+    });
 
     // Use provided modelConfig or fall back to session's config
     const configToUse = modelConfig || session.modelConfig;
@@ -168,7 +179,8 @@ export class InsightsService extends EventEmitter {
         projectPath,
         message,
         conversationHistory,
-        configToUse
+        configToUse,
+        images
       );
 
       // Add assistant message to session
