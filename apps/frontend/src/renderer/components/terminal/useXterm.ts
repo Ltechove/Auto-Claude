@@ -121,10 +121,16 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
 
     // WebGL acceleration: register terminal and acquire context based on user setting
     // Must happen AFTER xterm.open() — xterm.js requires the terminal to be mounted first
-    const gpuAcceleration = useSettingsStore.getState().settings.gpuAcceleration ?? 'auto';
-    webglContextManager.register(terminalId, xterm);
-    if (gpuAcceleration !== 'off') {
-      webglContextManager.acquire(terminalId);
+    try {
+      const gpuAcceleration = useSettingsStore.getState().settings.gpuAcceleration ?? 'auto';
+      debugLog(`[useXterm] WebGL init for ${terminalId}: gpuAcceleration=${gpuAcceleration}`);
+      webglContextManager.register(terminalId, xterm);
+      if (gpuAcceleration !== 'off') {
+        webglContextManager.acquire(terminalId);
+      }
+    } catch (error) {
+      // WebGL is a progressive enhancement — terminal works fine without it
+      debugError(`[useXterm] WebGL initialization failed for ${terminalId}, falling back to canvas renderer:`, error);
     }
 
     // Platform detection for copy/paste shortcuts
@@ -563,7 +569,11 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
     serializeBuffer();
 
     // Release WebGL context before disposing addons and xterm
-    webglContextManager.unregister(terminalId);
+    try {
+      webglContextManager.unregister(terminalId);
+    } catch (error) {
+      debugError(`[useXterm] WebGL cleanup failed for ${terminalId}:`, error);
+    }
 
     // Dispose addons explicitly before disposing xterm
     // While xterm.dispose() handles loaded addons, explicit disposal ensures

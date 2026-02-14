@@ -366,7 +366,9 @@ export class TerminalSessionStore {
   private updateSessionInMemory(session: TerminalSession): boolean {
     // Check if session was deleted - skip if pending deletion
     if (this.pendingDelete.has(session.id)) {
-      console.warn('[TerminalSessionStore] Skipping save for deleted session:', session.id);
+      debugLog('[TerminalSessionStore] Skipping save for deleted session:', session.id,
+        'pendingDelete size:', this.pendingDelete.size,
+        'all pending IDs:', [...this.pendingDelete].join(', '));
       return false;
     }
 
@@ -606,6 +608,9 @@ export class TerminalSessionStore {
     // Mark as pending delete BEFORE modifying data to prevent race condition
     // with in-flight saveSessionAsync() calls
     this.pendingDelete.add(sessionId);
+    debugLog('[TerminalSessionStore] removeSession: added to pendingDelete:', sessionId,
+      'pendingDelete size:', this.pendingDelete.size,
+      'all pending IDs:', [...this.pendingDelete].join(', '));
 
     const todaySessions = this.getTodaysSessions();
     if (todaySessions[projectPath]) {
@@ -625,6 +630,8 @@ export class TerminalSessionStore {
     // Keep the ID in pendingDelete for a short time to handle any in-flight
     // async operations, then clean up to prevent memory leaks
     const timer = setTimeout(() => {
+      debugLog('[TerminalSessionStore] Cleanup timer fired for:', sessionId,
+        'removing from pendingDelete. Remaining:', this.pendingDelete.size - 1);
       this.pendingDelete.delete(sessionId);
       this.pendingDeleteTimers.delete(sessionId);
     }, 5000);
