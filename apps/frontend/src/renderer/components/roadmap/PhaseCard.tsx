@@ -98,7 +98,8 @@ export function PhaseCard({
         <h4 className="text-sm font-medium mb-2">Features ({features.length})</h4>
         <div className="grid gap-2">
           {visibleFeatures.map((feature) => {
-            const archiveButton = feature.status === 'done' && onArchive && (
+            const isDone = feature.status === 'done';
+            const archiveButton = isDone && onArchive && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -139,7 +140,7 @@ export function PhaseCard({
                   <TaskOutcomeBadge outcome={feature.taskOutcome} size="lg" showLabel={false} />
                   {archiveButton}
                 </span>
-              ) : feature.status === 'done' ? (
+              ) : isDone ? (
                 <span className="flex items-center gap-1 flex-shrink-0">
                   <CheckCircle2 className="h-4 w-4 text-success" />
                   {archiveButton}
