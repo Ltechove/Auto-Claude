@@ -28,6 +28,8 @@ export interface TerminalProcess {
   shellType?: WindowsShellType;
   /** Whether this terminal is waiting for Claude onboarding to complete (login flow) */
   awaitingOnboardingComplete?: boolean;
+  /** Whether PTY has emitted exit; used to avoid writes/resizes on dead PTYs */
+  hasExited?: boolean;
 }
 
 /**

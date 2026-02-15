@@ -72,9 +72,9 @@ describe('DisplaySettings - GPU Acceleration Dropdown', () => {
       <DisplaySettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
     );
 
-    expect(screen.getByText('Auto (recommended)')).toBeInTheDocument();
+    expect(screen.getByText('Auto (use WebGL when supported)')).toBeInTheDocument();
     expect(screen.getByText('Always on')).toBeInTheDocument();
-    expect(screen.getByText('Off')).toBeInTheDocument();
+    expect(screen.getByText('Off (default)')).toBeInTheDocument();
   });
 
   it('should display the current GPU acceleration value from settings', () => {
@@ -89,7 +89,7 @@ describe('DisplaySettings - GPU Acceleration Dropdown', () => {
     expect(gpuSelect).toHaveAttribute('data-value', 'on');
   });
 
-  it('should default to "auto" when gpuAcceleration is not set', () => {
+  it('should default to "off" when gpuAcceleration is not set', () => {
     const settingsWithoutGpu: AppSettings = { ...defaultSettings, gpuAcceleration: undefined };
 
     const { container } = render(
@@ -97,7 +97,7 @@ describe('DisplaySettings - GPU Acceleration Dropdown', () => {
     );
 
     const gpuSelect = container.querySelector('[data-testid="select-root-1"]');
-    expect(gpuSelect).toHaveAttribute('data-value', 'auto');
+    expect(gpuSelect).toHaveAttribute('data-value', 'off');
   });
 
   it('should call onSettingsChange with gpuAcceleration "on" when selected', () => {
@@ -145,7 +145,7 @@ describe('DisplaySettings - GPU Acceleration Dropdown', () => {
     );
 
     expect(
-      screen.getByText('Use WebGL for terminal rendering (faster with many terminals)')
+      screen.getByText('Use WebGL for terminal rendering (experimental, faster with many terminals)')
     ).toBeInTheDocument();
   });
 });

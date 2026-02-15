@@ -68,8 +68,10 @@ export const DEFAULT_APP_SETTINGS = {
   sentryEnabled: true,
   // Auto-name Claude terminals based on initial message (enabled by default)
   autoNameClaudeTerminals: true,
-  // GPU acceleration for terminal rendering (auto = WebGL when supported)
-  gpuAcceleration: 'auto' as const
+  // GPU acceleration for terminal rendering
+  // Default to 'off' until WebGL stability is proven across all GPU drivers.
+  // Users can opt-in via Settings > Display > GPU Acceleration.
+  gpuAcceleration: 'off' as const
 };
 
 // ============================================

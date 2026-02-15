@@ -108,6 +108,7 @@ export async function createTerminal(
       id,
       pty: ptyProcess,
       isClaudeMode: false,
+      hasExited: false,
       projectPath,
       cwd: terminalCwd,
       outputBuffer: '',

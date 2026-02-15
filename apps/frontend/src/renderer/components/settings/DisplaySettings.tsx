@@ -287,7 +287,7 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
               </p>
             </div>
             <Select
-              value={settings.gpuAcceleration || 'auto'}
+              value={settings.gpuAcceleration || 'off'}
               onValueChange={(value) => onSettingsChange({
                 ...settings,
                 gpuAcceleration: value as GpuAcceleration

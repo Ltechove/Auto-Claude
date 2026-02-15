@@ -10,8 +10,8 @@ import { isWindows as checkIsWindows, isLinux as checkIsLinux } from '../../lib/
 import { debounce } from '../../lib/debounce';
 import { DEFAULT_TERMINAL_THEME } from '../../lib/terminal-theme';
 import { debugLog, debugError } from '../../../shared/utils/debug-logger';
-import { webglContextManager } from '../../lib/webgl-context-manager';
 import { useSettingsStore } from '../../stores/settings-store';
+import type { WebGLContextManagerType } from '../../lib/webgl-context-manager';
 
 interface UseXtermOptions {
   terminalId: string;
@@ -60,6 +60,8 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
   const commandBufferRef = useRef<string>('');
   const isDisposedRef = useRef<boolean>(false);
   const dimensionsReadyCalledRef = useRef<boolean>(false);
+  // Lazily-loaded WebGL context manager — only populated when gpuAcceleration !== 'off'
+  const webglManagerRef = useRef<WebGLContextManagerType | null>(null);
   const onResizeRef = useRef(onResize);
   const [dimensions, setDimensions] = useState<{ cols: number; rows: number }>({ cols: 80, rows: 24 });
 
@@ -119,18 +121,27 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
 
     xterm.open(terminalRef.current);
 
-    // WebGL acceleration: register terminal and acquire context based on user setting
-    // Must happen AFTER xterm.open() — xterm.js requires the terminal to be mounted first
-    try {
-      const gpuAcceleration = useSettingsStore.getState().settings.gpuAcceleration ?? 'auto';
-      debugLog(`[useXterm] WebGL init for ${terminalId}: gpuAcceleration=${gpuAcceleration}`);
-      webglContextManager.register(terminalId, xterm);
-      if (gpuAcceleration !== 'off') {
-        webglContextManager.acquire(terminalId);
-      }
-    } catch (error) {
-      // WebGL is a progressive enhancement — terminal works fine without it
-      debugError(`[useXterm] WebGL initialization failed for ${terminalId}, falling back to canvas renderer:`, error);
+    // WebGL acceleration: lazily load the WebGL module and acquire a context.
+    // The dynamic import() ensures NO GPU code (WebGL2 probing, context creation)
+    // runs unless the user has explicitly enabled GPU acceleration.
+    // This prevents GPU process instability on systems where WebGL2 is problematic
+    // (e.g., Apple Silicon Macs with certain macOS / Electron combinations).
+    const gpuAcceleration = useSettingsStore.getState().settings.gpuAcceleration ?? 'off';
+    debugLog(`[useXterm] WebGL check for ${terminalId}: gpuAcceleration=${gpuAcceleration}`);
+    if (gpuAcceleration !== 'off') {
+      import('../../lib/webgl-context-manager')
+        .then(({ webglContextManager }) => {
+          // Guard: terminal may have been disposed while the import was resolving
+          if (isDisposedRef.current) return;
+          webglManagerRef.current = webglContextManager;
+          webglContextManager.register(terminalId, xterm);
+          webglContextManager.acquire(terminalId);
+          debugLog(`[useXterm] WebGL acquired for ${terminalId}`);
+        })
+        .catch((error) => {
+          // WebGL is a progressive enhancement — terminal works fine without it
+          debugError(`[useXterm] WebGL initialization failed for ${terminalId}, falling back to canvas renderer:`, error);
+        });
     }
 
     // Platform detection for copy/paste shortcuts
@@ -568,11 +579,14 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
     // Serialize buffer before disposing to preserve ANSI formatting
     serializeBuffer();
 
-    // Release WebGL context before disposing addons and xterm
-    try {
-      webglContextManager.unregister(terminalId);
-    } catch (error) {
-      debugError(`[useXterm] WebGL cleanup failed for ${terminalId}:`, error);
+    // Release WebGL context before disposing addons and xterm (only if WebGL was loaded)
+    if (webglManagerRef.current) {
+      try {
+        webglManagerRef.current.unregister(terminalId);
+      } catch (error) {
+        debugError(`[useXterm] WebGL cleanup failed for ${terminalId}:`, error);
+      }
+      webglManagerRef.current = null;
     }
 
     // Dispose addons explicitly before disposing xterm

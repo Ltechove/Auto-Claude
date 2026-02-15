@@ -969,30 +969,35 @@ describe('useXterm WebGL context management', () => {
     return { disposeHook: () => disposeHook?.() };
   }
 
-  it('should register and acquire WebGL context when gpuAcceleration is "auto"', async () => {
+  it('should lazily import and acquire WebGL context when gpuAcceleration is "auto"', async () => {
     mockSettingsStoreState.settings.gpuAcceleration = 'auto';
 
     await renderUseXterm('terminal-auto');
+    // Flush the dynamic import() promise + microtasks
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
 
     expect(mockWebglRegister).toHaveBeenCalledWith('terminal-auto', expect.anything());
     expect(mockWebglAcquire).toHaveBeenCalledWith('terminal-auto');
   });
 
-  it('should register and acquire WebGL context when gpuAcceleration is "on"', async () => {
+  it('should lazily import and acquire WebGL context when gpuAcceleration is "on"', async () => {
     mockSettingsStoreState.settings.gpuAcceleration = 'on';
 
     await renderUseXterm('terminal-on');
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
 
     expect(mockWebglRegister).toHaveBeenCalledWith('terminal-on', expect.anything());
     expect(mockWebglAcquire).toHaveBeenCalledWith('terminal-on');
   });
 
-  it('should register but NOT acquire WebGL context when gpuAcceleration is "off"', async () => {
+  it('should NOT import WebGL module at all when gpuAcceleration is "off"', async () => {
     mockSettingsStoreState.settings.gpuAcceleration = 'off';
 
     await renderUseXterm('terminal-off');
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
 
-    expect(mockWebglRegister).toHaveBeenCalledWith('terminal-off', expect.anything());
+    // When off, the dynamic import() never fires — no GPU code runs
+    expect(mockWebglRegister).not.toHaveBeenCalled();
     expect(mockWebglAcquire).not.toHaveBeenCalled();
   });
 
@@ -1000,6 +1005,8 @@ describe('useXterm WebGL context management', () => {
     mockSettingsStoreState.settings.gpuAcceleration = 'auto';
 
     const { disposeHook } = await renderUseXterm('terminal-dispose');
+    // Flush the dynamic import so the manager ref is populated
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
 
     expect(mockWebglRegister).toHaveBeenCalledWith('terminal-dispose', expect.anything());
 
@@ -1011,13 +1018,29 @@ describe('useXterm WebGL context management', () => {
     expect(mockWebglUnregister).toHaveBeenCalledWith('terminal-dispose');
   });
 
-  it('should fallback to "auto" when gpuAcceleration is undefined (upgrading users)', async () => {
+  it('should NOT unregister on disposal when WebGL was never loaded (off)', async () => {
+    mockSettingsStoreState.settings.gpuAcceleration = 'off';
+
+    const { disposeHook } = await renderUseXterm('terminal-off-dispose');
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+
+    // Dispose the terminal
+    act(() => {
+      disposeHook();
+    });
+
+    // WebGL was never loaded, so unregister should not be called
+    expect(mockWebglUnregister).not.toHaveBeenCalled();
+  });
+
+  it('should fallback to "off" when gpuAcceleration is undefined (upgrading users)', async () => {
     mockSettingsStoreState.settings.gpuAcceleration = undefined;
 
     await renderUseXterm('terminal-undefined');
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
 
-    // When undefined, the ?? 'auto' fallback means acquire should be called
-    expect(mockWebglRegister).toHaveBeenCalledWith('terminal-undefined', expect.anything());
-    expect(mockWebglAcquire).toHaveBeenCalledWith('terminal-undefined');
+    // When undefined, the ?? 'off' fallback means no WebGL import at all
+    expect(mockWebglRegister).not.toHaveBeenCalled();
+    expect(mockWebglAcquire).not.toHaveBeenCalled();
   });
 });
