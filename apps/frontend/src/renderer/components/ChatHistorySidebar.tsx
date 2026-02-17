@@ -86,11 +86,17 @@ export function ChatHistorySidebar({
     });
   }, []);
 
-  // Clear selection when showArchived toggles - prevents selecting archived sessions when filter changes
+  // Prune selectedIds when sessions change - removes IDs for sessions no longer displayed
+  // Also resets when showArchived toggles
   // biome-ignore lint/correctness/useExhaustiveDependencies: showArchived is intentionally a dependency to reset selection on filter change
   useEffect(() => {
-    setSelectedIds(new Set());
-  }, [showArchived]);
+    setSelectedIds((prev) => {
+      if (prev.size === 0) return prev;
+      const validIds = new Set(sessions.map((s) => s.id));
+      const pruned = new Set([...prev].filter((id) => validIds.has(id)));
+      return pruned.size === prev.size ? prev : pruned;
+    });
+  }, [sessions, showArchived]);
 
   const handleToggleSelect = useCallback((sessionId: string) => {
     setSelectedIds((prev) => {
@@ -475,7 +481,7 @@ function SessionItem({
     <div
       role={isSelectionMode ? 'checkbox' : 'button'}
       aria-checked={isSelectionMode ? isSelected : undefined}
-      tabIndex={0}
+      tabIndex={isSelectionMode ? undefined : 0}
       className={cn(
         'group relative cursor-pointer px-2 py-2 transition-colors hover:bg-muted',
         isActive && 'bg-primary/10 hover:bg-primary/15',

@@ -150,13 +150,14 @@ export function Insights({ projectId }: InsightsProps) {
   }, [projectId]);
 
   // Reload sessions when showArchived changes (skip first run to avoid duplicate load)
-  // Reset the skip flag when projectId changes to avoid duplicate loads on project switch
-  const prevProjectId = useRef(projectId);
   const isFirstRun = useRef(true);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset isFirstRun when projectId changes so the initial load from the first effect handles it
   useEffect(() => {
-    if (isFirstRun.current || prevProjectId.current !== projectId) {
+    isFirstRun.current = true;
+  }, [projectId]);
+  useEffect(() => {
+    if (isFirstRun.current) {
       isFirstRun.current = false;
-      prevProjectId.current = projectId;
       return;
     }
     loadInsightsSessions(projectId, showArchived);

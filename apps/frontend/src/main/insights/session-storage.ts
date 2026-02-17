@@ -36,6 +36,9 @@ export class SessionStorage {
       // Convert date strings back to Date objects
       session.createdAt = new Date(session.createdAt);
       session.updatedAt = new Date(session.updatedAt);
+      if (session.archivedAt) {
+        session.archivedAt = new Date(session.archivedAt);
+      }
       session.messages = session.messages.map(m => ({
         ...m,
         timestamp: new Date(m.timestamp),

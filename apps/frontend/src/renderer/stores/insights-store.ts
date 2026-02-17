@@ -316,7 +316,7 @@ export async function renameSession(projectId: string, sessionId: string, newTit
 export async function deleteSessions(projectId: string, sessionIds: string[]): Promise<{ success: boolean; failedIds?: string[] }> {
   const result = await window.electronAPI.deleteInsightsSessions(projectId, sessionIds);
   if (result.success) {
-    return { success: true };
+    return { success: true, failedIds: result.data?.failedIds };
   }
   return { success: false, failedIds: result.data?.failedIds };
 }
@@ -329,7 +329,7 @@ export async function archiveSession(projectId: string, sessionId: string): Prom
 export async function archiveSessions(projectId: string, sessionIds: string[]): Promise<{ success: boolean; failedIds?: string[] }> {
   const result = await window.electronAPI.archiveInsightsSessions(projectId, sessionIds);
   if (result.success) {
-    return { success: true };
+    return { success: true, failedIds: result.data?.failedIds };
   }
   return { success: false, failedIds: result.data?.failedIds };
 }

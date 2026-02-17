@@ -270,7 +270,11 @@ export function registerInsightsHandlers(getMainWindow: () => BrowserWindow | nu
       }
 
       const result = insightsService.deleteSessions(projectId, project.path, sessionIds);
-      return { success: true, data: result };
+      return {
+        success: result.failedIds.length === 0,
+        data: result,
+        ...(result.failedIds.length > 0 && { error: `Failed to delete ${result.failedIds.length} session(s)` })
+      };
     }
   );
 
@@ -301,7 +305,11 @@ export function registerInsightsHandlers(getMainWindow: () => BrowserWindow | nu
       }
 
       const result = insightsService.archiveSessions(projectId, project.path, sessionIds);
-      return { success: true, data: result };
+      return {
+        success: result.failedIds.length === 0,
+        data: result,
+        ...(result.failedIds.length > 0 && { error: `Failed to archive ${result.failedIds.length} session(s)` })
+      };
     }
   );
 
