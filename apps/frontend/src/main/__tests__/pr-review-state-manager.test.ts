@@ -124,6 +124,15 @@ describe('PRReviewStateManager', () => {
       expect(snapshot!.context.result).toEqual(result);
     });
 
+    it('should create actor for handleComplete on unknown PR (late-arriving result)', () => {
+      const result = createMockResult();
+      // No handleStartReview called — handleComplete should create the actor
+      manager.handleComplete(projectId, prNumber, result);
+      const snapshot = manager.getState(projectId, prNumber);
+      expect(snapshot).not.toBeNull();
+      expect(snapshot!.context.result).toEqual(result);
+    });
+
     it('should send DETECT_EXTERNAL_REVIEW when overallStatus is in_progress', () => {
       manager.handleStartReview(projectId, prNumber);
       const result = createMockResult({ overallStatus: 'in_progress' });
@@ -237,6 +246,19 @@ describe('PRReviewStateManager', () => {
 
       manager.handleClearReview(projectId, prNumber);
       expect(manager.getState(projectId, prNumber)).toBeNull();
+    });
+
+    it('should emit exactly one cleared state IPC on handleClearReview (no double emission)', () => {
+      manager.handleStartReview(projectId, prNumber);
+      mockSafeSendToRenderer.mockClear();
+
+      manager.handleClearReview(projectId, prNumber);
+
+      // Should emit exactly 1 cleared state, not 2 (no double emission from
+      // sending CLEAR_REVIEW to actor subscription + manual emitClearedState)
+      expect(mockSafeSendToRenderer).toHaveBeenCalledTimes(1);
+      const payload = mockSafeSendToRenderer.mock.calls[0][3] as Record<string, unknown>;
+      expect(payload).toEqual(expect.objectContaining({ state: 'idle' }));
     });
 
     it('should stop ALL actors and clear maps on handleAuthChange', () => {

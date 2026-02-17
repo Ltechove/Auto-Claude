@@ -1672,6 +1672,24 @@ export function registerPRHandlers(getMainWindow: () => BrowserWindow | null): v
 
   // Clear all PR review actors when GitHub auth changes (account swap)
   ipcMain.on(IPC_CHANNELS.GITHUB_AUTH_CHANGED, () => {
+    // Cancel all running review subprocesses and CI wait controllers
+    for (const [reviewKey, entry] of runningReviews) {
+      if (entry === CI_WAIT_PLACEHOLDER) {
+        const abortController = ciWaitAbortControllers.get(reviewKey);
+        if (abortController) {
+          abortController.abort();
+          ciWaitAbortControllers.delete(reviewKey);
+        }
+      } else {
+        try {
+          entry.kill("SIGTERM");
+        } catch {
+          // Process may have already exited
+        }
+      }
+    }
+    runningReviews.clear();
+    ciWaitAbortControllers.clear();
     prReviewStateManager.handleAuthChange();
   });
 
@@ -1889,10 +1907,12 @@ export function registerPRHandlers(getMainWindow: () => BrowserWindow | null): v
         // Check if already running — notify renderer so it can display ongoing logs
         if (runningReviews.has(reviewKey)) {
           debugLog("Review already running, notifying renderer", { reviewKey });
+          const currentSnapshot = prReviewStateManager.getState(projectId, prNumber);
+          const currentProgress = currentSnapshot?.context?.progress?.progress ?? 50;
           sendProgress({
             phase: "analyzing",
             prNumber,
-            progress: 50,
+            progress: currentProgress,
             message: "Review is already in progress. Reconnecting to ongoing review...",
           });
           return;
@@ -2912,10 +2932,12 @@ export function registerPRHandlers(getMainWindow: () => BrowserWindow | null): v
           // Check if already running — notify renderer so it can display ongoing logs
           if (runningReviews.has(reviewKey)) {
             debugLog("Follow-up review already running, notifying renderer", { reviewKey });
+            const currentSnapshot = prReviewStateManager.getState(projectId, prNumber);
+            const currentProgress = currentSnapshot?.context?.progress?.progress ?? 50;
             sendProgress({
               phase: "analyzing",
               prNumber,
-              progress: 50,
+              progress: currentProgress,
               message: "Follow-up review is already in progress. Reconnecting to ongoing review...",
             });
             return;

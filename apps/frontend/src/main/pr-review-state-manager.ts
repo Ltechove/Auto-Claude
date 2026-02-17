@@ -53,8 +53,16 @@ export class PRReviewStateManager {
   }
 
   handleComplete(projectId: string, prNumber: number, result: PRReviewResult): void {
-    const actor = this.getActor(projectId, prNumber);
-    if (!actor) return;
+    // Use getOrCreateActor so late-arriving results (e.g. after auth change or
+    // app restart) still get processed instead of silently dropped.
+    const actor = this.getOrCreateActor(projectId, prNumber);
+
+    // If the actor is in idle state (freshly created for a late-arriving result),
+    // transition to reviewing first so REVIEW_COMPLETE is accepted.
+    const snapshot = actor.getSnapshot();
+    if (String(snapshot.value) === 'idle') {
+      actor.send({ type: 'START_REVIEW', prNumber, projectId } satisfies PRReviewEvent);
+    }
 
     // Detect external review (result arrives with 'in_progress' status from outside)
     if (result.overallStatus === 'in_progress') {
@@ -80,9 +88,10 @@ export class PRReviewStateManager {
     const key = this.getKey(projectId, prNumber);
     const actor = this.actors.get(key);
     if (actor) {
-      // Capture snapshot before clearing so the emitted payload has real context
+      // Capture snapshot before stopping so the emitted payload has real context.
+      // Don't send CLEAR_REVIEW to the actor — that would trigger the subscription
+      // and cause a duplicate IPC emission alongside emitClearedState below.
       const snapshot = actor.getSnapshot();
-      actor.send({ type: 'CLEAR_REVIEW' } satisfies PRReviewEvent);
       actor.stop();
       this.actors.delete(key);
       this.emitClearedState(key, snapshot?.context ?? null);
