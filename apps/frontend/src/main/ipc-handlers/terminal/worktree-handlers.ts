@@ -400,6 +400,9 @@ async function setupWorktreeDependencies(projectPath: string, worktreePath: stri
                 // Remove the broken symlink and recreate
                 try { rmSync(venvPath, { recursive: true, force: true }); } catch { /* best-effort */ }
                 performed = await applyRecreateStrategy(projectPath, worktreePath, config);
+                if (performed) {
+                  debugLog('[TerminalWorktree] Venv fallback to recreate succeeded:', config.sourceRelPath);
+                }
               }
             }
           }
