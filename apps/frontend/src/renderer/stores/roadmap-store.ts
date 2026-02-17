@@ -225,6 +225,9 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
         break;
       }
       case 'discovering': {
+        // NOTE: Backward transitions (e.g., generating→discovering) are intentionally
+        // unsupported. The generation pipeline is strictly forward-progressing, so XState
+        // will silently drop the event if the actor is already past this phase.
         const cs = String(actor.getSnapshot().value);
         if (cs === 'idle') {
           actor.send({ type: 'START_GENERATION' });
@@ -271,9 +274,19 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
         event = { type: 'GENERATION_COMPLETE' };
         break;
       }
-      case 'error':
+      case 'error': {
+        const cs = String(actor.getSnapshot().value);
+        // Catch-up logic: GENERATION_ERROR is only handled in analyzing, discovering,
+        // and generating states. Advance from idle/complete so the event isn't dropped.
+        if (cs === 'idle') {
+          actor.send({ type: 'START_GENERATION' });
+        } else if (cs === 'complete' || cs === 'error') {
+          actor.send({ type: 'RESET' });
+          actor.send({ type: 'START_GENERATION' });
+        }
         event = { type: 'GENERATION_ERROR', error: status.error ?? 'Unknown error' };
         break;
+      }
       case 'idle': {
         // Stop or reset depending on current state
         const currentState = String(actor.getSnapshot().value);
@@ -291,7 +304,7 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
     }
 
     // Send progress updates for active states
-    if (status.progress !== undefined && status.message) {
+    if (status.progress !== undefined && status.message !== undefined) {
       const currentState = String(actor.getSnapshot().value);
       if (currentState === 'analyzing' || currentState === 'discovering' || currentState === 'generating') {
         actor.send({ type: 'PROGRESS_UPDATE', progress: status.progress, message: status.message });

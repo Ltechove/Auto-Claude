@@ -3,7 +3,7 @@
  * Tests Zustand store for roadmap state management including drag-and-drop actions
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useRoadmapStore, getFeaturesByPhase, getFeaturesByPriority, getFeatureStats } from '../stores/roadmap-store';
+import { useRoadmapStore, getFeaturesByPhase, getFeaturesByPriority, getFeatureStats, resetActors } from '../stores/roadmap-store';
 import type {
   Roadmap,
   RoadmapFeature,
@@ -84,10 +84,9 @@ describe('Roadmap Store', () => {
     });
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     vi.clearAllMocks();
     // Reset XState actors to prevent test pollution
-    const { resetActors } = await import('../stores/roadmap-store');
     resetActors();
   });
 

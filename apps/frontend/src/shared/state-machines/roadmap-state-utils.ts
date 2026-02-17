@@ -22,7 +22,10 @@ export const GENERATION_STATE_NAMES = [
 
 export type GenerationStateName = typeof GENERATION_STATE_NAMES[number];
 
-// Compile-time assertion: ensure GENERATION_STATE_NAMES stays in sync with roadmapGenerationMachine
+// Compile-time assertion: ensures every element in GENERATION_STATE_NAMES is a valid machine state.
+// The reverse direction (every machine state is in the array) is enforced by the exhaustive switch
+// in mapGenerationStateToPhase below — adding a new machine state without a switch case will cause
+// it to silently map to 'idle' via default, which the mapGenerationStateToPhase tests will catch.
 const _genCheck: readonly StateValueFrom<typeof roadmapGenerationMachine>[] = GENERATION_STATE_NAMES;
 
 /**
@@ -37,7 +40,8 @@ export const FEATURE_STATE_NAMES = [
 
 export type FeatureStateName = typeof FEATURE_STATE_NAMES[number];
 
-// Compile-time assertion: ensure FEATURE_STATE_NAMES stays in sync with roadmapFeatureMachine
+// Compile-time assertion: ensures every element in FEATURE_STATE_NAMES is a valid machine state.
+// Reverse direction enforced by mapFeatureStateToStatus switch exhaustiveness (see comment above).
 const _featCheck: readonly StateValueFrom<typeof roadmapFeatureMachine>[] = FEATURE_STATE_NAMES;
 
 /**
