@@ -699,6 +699,10 @@ export function registerTaskExecutionHandlers(
 
           console.warn('[TASK_UPDATE_STATUS] Auto-starting task:', taskId);
 
+          // Cancel any pending fallback timer from previous process exit
+          // This prevents the stale timer from incorrectly stopping the newly started task
+          cancelFallbackTimer(taskId);
+
           // Reset any stuck subtasks before starting execution
           // This handles recovery from previous rate limits or crashes
           const resetResult = await resetStuckSubtasks(planPath, project.id);
@@ -1117,6 +1121,10 @@ export function registerTaskExecutionHandlers(
           }
 
           try {
+            // Cancel any pending fallback timer from previous process exit
+            // This prevents the stale timer from incorrectly stopping the restarted task
+            cancelFallbackTimer(taskId);
+
             // Set status to in_progress for the restart
             newStatus = 'in_progress';
 
