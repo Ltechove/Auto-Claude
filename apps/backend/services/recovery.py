@@ -21,6 +21,8 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 
+from core.file_utils import write_json_atomic
+
 # Recovery manager configuration
 ATTEMPT_WINDOW_SECONDS = 7200  # Only count attempts within last 2 hours
 MAX_ATTEMPT_HISTORY_PER_SUBTASK = 50  # Cap stored attempts per subtask
@@ -538,8 +540,7 @@ class RecoveryManager:
                         break
 
                 if updated:
-                    with open(plan_file, "w", encoding="utf-8") as f:
-                        json.dump(plan, f, indent=2)
+                    write_json_atomic(plan_file, plan, indent=2)
         except (OSError, json.JSONDecodeError, UnicodeDecodeError) as e:
             logger.warning(
                 f"Failed to update implementation_plan.json for stuck subtask {subtask_id}: {e}"
