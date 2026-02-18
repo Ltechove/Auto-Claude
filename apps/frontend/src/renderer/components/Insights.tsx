@@ -144,24 +144,22 @@ export function Insights({ projectId }: InsightsProps) {
 
   // Load session and set up listeners on mount
   useEffect(() => {
-    loadInsightsSession(projectId);
+    loadInsightsSession(projectId, showArchived);
     const cleanup = setupInsightsListeners();
     return cleanup;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: showArchived is handled by the dedicated effect below; including it here would cause duplicate loads
   }, [projectId]);
 
-  // Reload sessions when showArchived changes (skip first run to avoid duplicate load)
+  // Reload sessions when showArchived changes (skip first run to avoid duplicate load with mount effect)
   const isFirstRun = useRef(true);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset isFirstRun when projectId changes so the initial load from the first effect handles it
-  useEffect(() => {
-    isFirstRun.current = true;
-  }, [projectId]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: projectId changes are handled by the mount effect above; this effect only reacts to showArchived toggles
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
       return;
     }
     loadInsightsSessions(projectId, showArchived);
-  }, [projectId, showArchived]);
+  }, [showArchived]);
 
   // Smart auto-scroll: only scroll if user is already at bottom
   // This allows users to scroll up to read previous messages without being
@@ -212,7 +210,7 @@ export function Insights({ projectId }: InsightsProps) {
   };
 
   const handleDeleteSession = async (sessionId: string): Promise<boolean> => {
-    return await deleteSession(projectId, sessionId);
+    return await deleteSession(projectId, sessionId, showArchived);
   };
 
   const handleRenameSession = async (sessionId: string, newTitle: string): Promise<boolean> => {
@@ -224,7 +222,7 @@ export function Insights({ projectId }: InsightsProps) {
       await archiveSession(projectId, sessionId);
       await loadInsightsSessions(projectId, showArchived);
       // Reload current session in case backend switched to a different one
-      await loadInsightsSession(projectId);
+      await loadInsightsSession(projectId, showArchived);
     } catch (error) {
       console.error(`Failed to archive session ${sessionId}:`, error);
     }
@@ -235,7 +233,7 @@ export function Insights({ projectId }: InsightsProps) {
       await unarchiveSession(projectId, sessionId);
       await loadInsightsSessions(projectId, showArchived);
       // Reload current session in case backend switched to a different one
-      await loadInsightsSession(projectId);
+      await loadInsightsSession(projectId, showArchived);
     } catch (error) {
       console.error(`Failed to unarchive session ${sessionId}:`, error);
     }
@@ -246,7 +244,7 @@ export function Insights({ projectId }: InsightsProps) {
       const result = await deleteSessions(projectId, sessionIds);
       await loadInsightsSessions(projectId, showArchived);
       // Reload current session in case backend switched to a different one
-      await loadInsightsSession(projectId);
+      await loadInsightsSession(projectId, showArchived);
 
       // Log partial failures for debugging
       if (result.failedIds && result.failedIds.length > 0) {
@@ -262,7 +260,7 @@ export function Insights({ projectId }: InsightsProps) {
       const result = await archiveSessions(projectId, sessionIds);
       await loadInsightsSessions(projectId, showArchived);
       // Reload current session in case backend switched to a different one
-      await loadInsightsSession(projectId);
+      await loadInsightsSession(projectId, showArchived);
 
       // Log partial failures for debugging
       if (result.failedIds && result.failedIds.length > 0) {

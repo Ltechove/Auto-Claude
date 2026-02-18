@@ -223,7 +223,7 @@ export async function loadInsightsSessions(projectId: string, includeArchived?: 
   }
 }
 
-export async function loadInsightsSession(projectId: string): Promise<void> {
+export async function loadInsightsSession(projectId: string, includeArchived?: boolean): Promise<void> {
   const result = await window.electronAPI.getInsightsSession(projectId);
   if (result.success && result.data) {
     useInsightsStore.getState().setSession(result.data);
@@ -231,7 +231,7 @@ export async function loadInsightsSession(projectId: string): Promise<void> {
     useInsightsStore.getState().setSession(null);
   }
   // Also load the sessions list
-  await loadInsightsSessions(projectId);
+  await loadInsightsSessions(projectId, includeArchived);
 }
 
 export function sendMessage(projectId: string, message: string, modelConfig?: InsightsModelConfig): void {
@@ -263,12 +263,12 @@ export function sendMessage(projectId: string, message: string, modelConfig?: In
   window.electronAPI.sendInsightsMessage(projectId, message, configToUse);
 }
 
-export async function clearSession(projectId: string): Promise<void> {
+export async function clearSession(projectId: string, includeArchived?: boolean): Promise<void> {
   const result = await window.electronAPI.clearInsightsSession(projectId);
   if (result.success) {
     useInsightsStore.getState().clearSession();
     // Reload sessions list and current session
-    await loadInsightsSession(projectId);
+    await loadInsightsSession(projectId, includeArchived);
   }
 }
 
@@ -293,11 +293,11 @@ export async function switchSession(projectId: string, sessionId: string): Promi
   }
 }
 
-export async function deleteSession(projectId: string, sessionId: string): Promise<boolean> {
+export async function deleteSession(projectId: string, sessionId: string, includeArchived?: boolean): Promise<boolean> {
   const result = await window.electronAPI.deleteInsightsSession(projectId, sessionId);
   if (result.success) {
     // Reload sessions list and current session
-    await loadInsightsSession(projectId);
+    await loadInsightsSession(projectId, includeArchived);
     return true;
   }
   return false;
