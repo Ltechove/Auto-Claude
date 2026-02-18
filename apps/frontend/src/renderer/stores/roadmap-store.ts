@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { create } from 'zustand';
 import { createActor } from 'xstate';
 import type { Actor } from 'xstate';
@@ -41,10 +42,37 @@ export function resetActors(): void {
 
 /**
  * Get or create the singleton generation actor.
+ * Optionally provide an initial state and context to restore from persisted data.
  */
-function getOrCreateGenerationActor(): Actor<typeof roadmapGenerationMachine> {
+function getOrCreateGenerationActor(
+  initialState?: RoadmapGenerationStatus['phase'],
+  initialContext?: Partial<{ progress: number; message: string; error: string; startedAt: number; completedAt: number; lastActivityAt: number }>
+): Actor<typeof roadmapGenerationMachine> {
+  // Invalidate cached actor if its state doesn't match the expected value
+  if (generationActor && initialState) {
+    const currentValue = String(generationActor.getSnapshot().value);
+    if (currentValue !== initialState) {
+      generationActor.stop();
+      generationActor = null;
+    }
+  }
   if (!generationActor) {
-    generationActor = createActor(roadmapGenerationMachine);
+    if (initialState) {
+      const resolvedSnapshot = roadmapGenerationMachine.resolveState({
+        value: initialState,
+        context: {
+          progress: initialContext?.progress ?? 0,
+          message: initialContext?.message,
+          error: initialContext?.error,
+          startedAt: initialContext?.startedAt,
+          completedAt: initialContext?.completedAt,
+          lastActivityAt: initialContext?.lastActivityAt
+        }
+      });
+      generationActor = createActor(roadmapGenerationMachine, { snapshot: resolvedSnapshot });
+    } else {
+      generationActor = createActor(roadmapGenerationMachine);
+    }
     generationActor.start();
   }
   return generationActor;
