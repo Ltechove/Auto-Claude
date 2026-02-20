@@ -111,6 +111,7 @@ export const AUTO_BUILD_PATHS = {
   ROADMAP_FILE: 'roadmap.json',
   ROADMAP_DISCOVERY: 'roadmap_discovery.json',
   COMPETITOR_ANALYSIS: 'competitor_analysis.json',
+  MANUAL_COMPETITORS: 'manual_competitors.json',
   IDEATION_FILE: 'ideation.json',
   IDEATION_CONTEXT: 'ideation_context.json',
   PROJECT_INDEX: '.auto-claude/project_index.json',

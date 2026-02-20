@@ -1211,7 +1211,10 @@ export function resumeClaude(
       console.warn('[ClaudeIntegration:resumeClaude] sessionId parameter is deprecated and ignored; using claude --continue instead');
     }
 
-    const command = `${pathPrefix}${escapedClaudeCmd} --continue`;
+    // Preserve YOLO mode flag from terminal's stored state
+    const extraFlags = terminal.dangerouslySkipPermissions ? YOLO_MODE_FLAG : '';
+
+    const command = `${pathPrefix}${escapedClaudeCmd} --continue${extraFlags}`;
 
     // Use PtyManager.writeToPty for safer write with error handling
     PtyManager.writeToPty(terminal, `${command}\r`);
@@ -1386,7 +1389,8 @@ export async function invokeClaudeAsync(
 export async function resumeClaudeAsync(
   terminal: TerminalProcess,
   sessionId: string | undefined,
-  getWindow: WindowGetter
+  getWindow: WindowGetter,
+  options?: { migratedSession?: boolean }
 ): Promise<void> {
   // Track terminal state for cleanup on error
   const wasClaudeMode = terminal.isClaudeMode;
@@ -1419,12 +1423,19 @@ export async function resumeClaudeAsync(
     // and we don't want stale IDs persisting through SessionHandler.persistSessionAsync().
     terminal.claudeSessionId = undefined;
 
-    // Deprecation warning for callers still passing sessionId
-    if (sessionId) {
+    // Deprecation warning for callers still passing sessionId (skip for migrated sessions)
+    if (sessionId && !options?.migratedSession) {
       console.warn('[ClaudeIntegration:resumeClaudeAsync] sessionId parameter is deprecated and ignored; using claude --continue instead');
     }
 
-    const command = `${pathPrefix}${escapedClaudeCmd} --continue`;
+    if (options?.migratedSession) {
+      debugLog('[ClaudeIntegration:resumeClaudeAsync] Post-swap resume for terminal:', terminal.id);
+    }
+
+    // Preserve YOLO mode flag from terminal's stored state
+    const extraFlags = terminal.dangerouslySkipPermissions ? YOLO_MODE_FLAG : '';
+
+    const command = `${pathPrefix}${escapedClaudeCmd} --continue${extraFlags}`;
 
     // Use PtyManager.writeToPty for safer write with error handling
     PtyManager.writeToPty(terminal, `${command}\r`);

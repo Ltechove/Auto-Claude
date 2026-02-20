@@ -108,6 +108,7 @@ import type {
   InsightsModelConfig
 } from './insights';
 import type {
+  CompetitorAnalysis,
   Roadmap,
   RoadmapFeatureStatus,
   RoadmapGenerationStatus,
@@ -252,7 +253,7 @@ export interface ElectronAPI {
   getTerminalSessions: (projectPath: string) => Promise<IPCResult<TerminalSession[]>>;
   restoreTerminalSession: (session: TerminalSession, cols?: number, rows?: number) => Promise<IPCResult<TerminalRestoreResult>>;
   clearTerminalSessions: (projectPath: string) => Promise<IPCResult>;
-  resumeClaudeInTerminal: (id: string, sessionId?: string) => void;
+  resumeClaudeInTerminal: (id: string, sessionId?: string, options?: { migratedSession?: boolean }) => void;
   activateDeferredClaudeResume: (id: string) => void;
   getTerminalSessionDates: (projectPath?: string) => Promise<IPCResult<SessionDateInfo[]>>;
   getTerminalSessionsForDate: (date: string, projectPath: string) => Promise<IPCResult<TerminalSession[]>>;
@@ -416,6 +417,7 @@ export interface ElectronAPI {
   getRoadmap: (projectId: string) => Promise<IPCResult<Roadmap | null>>;
   getRoadmapStatus: (projectId: string) => Promise<IPCResult<{ isRunning: boolean }>>;
   saveRoadmap: (projectId: string, roadmap: Roadmap) => Promise<IPCResult>;
+  saveCompetitorAnalysis: (projectId: string, competitorAnalysis: CompetitorAnalysis) => Promise<IPCResult>;
   generateRoadmap: (projectId: string, enableCompetitorAnalysis?: boolean, refreshCompetitorAnalysis?: boolean) => void;
   refreshRoadmap: (projectId: string, enableCompetitorAnalysis?: boolean, refreshCompetitorAnalysis?: boolean) => void;
   stopRoadmap: (projectId: string) => Promise<IPCResult>;

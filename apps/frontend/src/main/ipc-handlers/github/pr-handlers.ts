@@ -1484,6 +1484,19 @@ async function runPRReview(
   // Build environment with project settings
   const subprocessEnv = await getRunnerEnv(getClaudeMdEnv(project));
 
+  safeBreadcrumb({
+    category: 'github.pr-review',
+    message: `Subprocess env for PR #${prNumber} review`,
+    level: 'info',
+    data: {
+      prNumber,
+      hasGITHUB_CLI_PATH: !!subprocessEnv.GITHUB_CLI_PATH,
+      GITHUB_CLI_PATH: subprocessEnv.GITHUB_CLI_PATH ?? 'NOT SET',
+      hasGITHUB_TOKEN: !!subprocessEnv.GITHUB_TOKEN,
+      hasPYTHONPATH: !!subprocessEnv.PYTHONPATH,
+    },
+  });
+
   // Create operation ID for this review
   const reviewKey = getReviewKey(project.id, prNumber);
 
@@ -3024,6 +3037,19 @@ export function registerPRHandlers(getMainWindow: () => BrowserWindow | null): v
 
           // Build environment with project settings
           const followupEnv = await getRunnerEnv(getClaudeMdEnv(project));
+
+          safeBreadcrumb({
+            category: 'github.pr-review',
+            message: `Subprocess env for PR #${prNumber} follow-up review`,
+            level: 'info',
+            data: {
+              prNumber,
+              hasGITHUB_CLI_PATH: !!followupEnv.GITHUB_CLI_PATH,
+              GITHUB_CLI_PATH: followupEnv.GITHUB_CLI_PATH ?? 'NOT SET',
+              hasGITHUB_TOKEN: !!followupEnv.GITHUB_TOKEN,
+              hasPYTHONPATH: !!followupEnv.PYTHONPATH,
+            },
+          });
 
           const { process: childProcess, promise } = runPythonSubprocess<PRReviewResult>({
             pythonPath: getPythonPath(backendPath),

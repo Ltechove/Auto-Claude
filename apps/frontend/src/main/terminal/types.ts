@@ -99,4 +99,5 @@ export interface TerminalProfileChangeInfo {
   claudeSessionId?: string;
   claudeProfileId?: string;
   isClaudeMode: boolean;
+  dangerouslySkipPermissions?: boolean;
 }

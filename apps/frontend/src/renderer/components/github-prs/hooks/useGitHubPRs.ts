@@ -32,6 +32,7 @@ interface UseGitHubPRsResult {
   isReviewing: boolean;
   isExternalReview: boolean;
   previousReviewResult: PRReviewResult | null;
+  reviewError: string | null;
   isConnected: boolean;
   repoFullName: string | null;
   activePRReviews: number[]; // PR numbers currently being reviewed
@@ -115,6 +116,7 @@ export function useGitHubPRs(
   const isExternalReview = selectedPRReviewState?.isExternalReview ?? false;
   const previousReviewResult = selectedPRReviewState?.previousResult ?? null;
   const startedAt = selectedPRReviewState?.startedAt ?? null;
+  const reviewError = selectedPRReviewState?.error ?? null;
 
   // Get list of PR numbers currently being reviewed
   const activePRReviews = useMemo(() => {
@@ -723,6 +725,7 @@ export function useGitHubPRs(
     isReviewing,
     isExternalReview,
     previousReviewResult,
+    reviewError,
     isConnected,
     repoFullName,
     activePRReviews,

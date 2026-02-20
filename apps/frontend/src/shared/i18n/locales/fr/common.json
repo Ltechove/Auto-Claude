@@ -1,4 +1,22 @@
 {
+  "competitorAnalysis": {
+    "addCompetitor": "Ajouter un concurrent",
+    "manualBadge": "Manuel",
+    "noCompetitorsYet": "Aucun concurrent ajouté pour l'instant",
+    "addCompetitorToStart": "Ajoutez un concurrent pour commencer",
+    "analysisResults": "Résultats de l'analyse concurrentielle",
+    "analysisDescription": "{{count}} concurrents analysés pour identifier les opportunités et lacunes du marché",
+    "visit": "Visiter",
+    "identifiedPainPoints": "Points de douleur identifiés ({{count}})",
+    "noPainPointsIdentified": "Aucun point de douleur identifié",
+    "source": "Source :",
+    "frequency": "Fréquence :",
+    "opportunity": "Opportunité :",
+    "marketInsightsSummary": "Résumé des perspectives du marché",
+    "topPainPoints": "Principaux points de douleur :",
+    "differentiatorOpportunities": "Opportunités de différenciation :",
+    "marketTrends": "Tendances du marché :"
+  },
   "projectTab": {
     "settings": "Paramètres du projet",
     "showArchived": "Afficher archivés",
@@ -11,6 +29,7 @@
   },
   "accessibility": {
     "deleteFeatureAriaLabel": "Supprimer la fonctionnalité",
+    "archiveFeatureAriaLabel": "Archiver la fonctionnalité",
     "closeFeatureDetailsAriaLabel": "Fermer les détails de la fonctionnalité",
     "regenerateRoadmapAriaLabel": "Régénérer la feuille de route",
     "repositoryOwnerAriaLabel": "Propriétaire du dépôt",
@@ -371,6 +390,7 @@
     "followup": "Suivi",
     "initial": "Initial",
     "rerunFollowup": "Relancer la revue de suivi",
+    "retryReview": "Réessayer la revue",
     "rerunReview": "Relancer la revue",
     "updateBranch": "Mettre à jour la branche",
     "updatingBranch": "Mise à jour...",
@@ -606,7 +626,15 @@
     "taskArchived": "Archivé",
     "showMoreFeatures": "Afficher {{count}} fonctionnalité supplémentaire",
     "showMoreFeatures_plural": "Afficher {{count}} fonctionnalités supplémentaires",
-    "showLessFeatures": "Afficher moins"
+    "showLessFeatures": "Afficher moins",
+    "archiveFeature": "Archiver",
+    "archiveFeatureConfirmTitle": "Archiver la fonctionnalité ?",
+    "archiveFeatureConfirmDescription": "Cela supprimera \"{{title}}\" de votre feuille de route.",
+    "goToTask": "Aller à la tâche",
+    "convertToTask": "Convertir en tâche Auto-Build",
+    "build": "Construire",
+    "task": "Tâche",
+    "viewTask": "Voir la tâche"
   },
   "roadmapGeneration": {
     "progress": "Progression",

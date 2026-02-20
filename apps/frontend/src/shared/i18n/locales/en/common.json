@@ -1,4 +1,22 @@
 {
+  "competitorAnalysis": {
+    "addCompetitor": "Add Competitor",
+    "manualBadge": "Manual",
+    "noCompetitorsYet": "No competitors added yet",
+    "addCompetitorToStart": "Add a competitor to get started",
+    "analysisResults": "Competitor Analysis Results",
+    "analysisDescription": "Analyzed {{count}} competitors to identify market gaps and opportunities",
+    "visit": "Visit",
+    "identifiedPainPoints": "Identified Pain Points ({{count}})",
+    "noPainPointsIdentified": "No pain points identified",
+    "source": "Source:",
+    "frequency": "Frequency:",
+    "opportunity": "Opportunity:",
+    "marketInsightsSummary": "Market Insights Summary",
+    "topPainPoints": "Top Pain Points:",
+    "differentiatorOpportunities": "Differentiator Opportunities:",
+    "marketTrends": "Market Trends:"
+  },
   "projectTab": {
     "settings": "Project settings",
     "showArchived": "Show archived",
@@ -11,6 +29,7 @@
   },
   "accessibility": {
     "deleteFeatureAriaLabel": "Delete feature",
+    "archiveFeatureAriaLabel": "Archive feature",
     "closeFeatureDetailsAriaLabel": "Close feature details",
     "regenerateRoadmapAriaLabel": "Regenerate Roadmap",
     "repositoryOwnerAriaLabel": "Repository owner",
@@ -362,6 +381,7 @@
     "followup": "Follow-up",
     "initial": "Initial",
     "rerunFollowup": "Re-run follow-up review",
+    "retryReview": "Retry Review",
     "rerunReview": "Re-run review",
     "updateBranch": "Update Branch",
     "updatingBranch": "Updating...",
@@ -606,7 +626,15 @@
     "taskArchived": "Archived",
     "showMoreFeatures": "Show {{count}} more feature",
     "showMoreFeatures_plural": "Show {{count}} more features",
-    "showLessFeatures": "Show less"
+    "showLessFeatures": "Show less",
+    "archiveFeature": "Archive",
+    "archiveFeatureConfirmTitle": "Archive Feature?",
+    "archiveFeatureConfirmDescription": "This will remove \"{{title}}\" from your roadmap.",
+    "goToTask": "Go to Task",
+    "convertToTask": "Convert to Auto-Build Task",
+    "build": "Build",
+    "task": "Task",
+    "viewTask": "View Task"
   },
   "roadmapGeneration": {
     "progress": "Progress",
