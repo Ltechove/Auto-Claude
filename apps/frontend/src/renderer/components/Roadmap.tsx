@@ -78,6 +78,7 @@ export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
           onOpenChange={setShowCompetitorDialog}
           onAccept={handleCompetitorDialogAccept}
           onDecline={handleCompetitorDialogDecline}
+          projectId={projectId}
         />
         {/* Dialog for projects WITH existing competitor analysis */}
         <ExistingCompetitorAnalysisDialog
@@ -87,6 +88,7 @@ export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
           onRunNew={handleRunNewAnalysis}
           onSkip={handleSkipAnalysis}
           analysisDate={competitorAnalysisDate}
+          projectId={projectId}
         />
       </>
     );
@@ -135,6 +137,7 @@ export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
         onOpenChange={setShowCompetitorDialog}
         onAccept={handleCompetitorDialogAccept}
         onDecline={handleCompetitorDialogDecline}
+        projectId={projectId}
       />
 
       {/* Competitor Analysis Options Dialog (existing analysis) */}
@@ -145,6 +148,7 @@ export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
         onRunNew={handleRunNewAnalysis}
         onSkip={handleSkipAnalysis}
         analysisDate={competitorAnalysisDate}
+        projectId={projectId}
       />
 
       {/* Competitor Analysis Viewer */}
@@ -152,6 +156,7 @@ export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
         analysis={competitorAnalysis}
         open={showCompetitorViewer}
         onOpenChange={setShowCompetitorViewer}
+        projectId={projectId}
       />
 
       {/* Add Feature Dialog */}

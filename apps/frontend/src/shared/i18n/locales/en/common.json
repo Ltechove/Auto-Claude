@@ -1,4 +1,22 @@
 {
+  "competitorAnalysis": {
+    "addCompetitor": "Add Competitor",
+    "manualBadge": "Manual",
+    "noCompetitorsYet": "No competitors added yet",
+    "addCompetitorToStart": "Add a competitor to get started",
+    "analysisResults": "Competitor Analysis Results",
+    "analysisDescription": "Analyzed {{count}} competitors to identify market gaps and opportunities",
+    "visit": "Visit",
+    "identifiedPainPoints": "Identified Pain Points ({{count}})",
+    "noPainPointsIdentified": "No pain points identified",
+    "source": "Source:",
+    "frequency": "Frequency:",
+    "opportunity": "Opportunity:",
+    "marketInsightsSummary": "Market Insights Summary",
+    "topPainPoints": "Top Pain Points:",
+    "differentiatorOpportunities": "Differentiator Opportunities:",
+    "marketTrends": "Market Trends:"
+  },
   "projectTab": {
     "settings": "Project settings",
     "showArchived": "Show archived",
