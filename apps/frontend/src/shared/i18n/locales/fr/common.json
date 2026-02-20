@@ -449,7 +449,22 @@
     "suggestedTask": "Tâche suggérée",
     "creating": "Création...",
     "taskCreated": "Tâche créée",
-    "createTask": "Créer une tâche"
+    "createTask": "Créer une tâche",
+    "images": {
+      "pasteHint": "Coller une image ou une capture d'écran",
+      "dropHint": "Déposer l'image ici",
+      "screenshotButton": "Joindre une capture d'écran",
+      "removeImage": "Supprimer l'image",
+      "imageCount": "{{count}} image jointe",
+      "imageCount_plural": "{{count}} images jointes",
+      "maxImagesReached": "Nombre maximum d'images atteint",
+      "invalidType": "Type de fichier invalide. Veuillez utiliser PNG, JPEG, GIF ou WebP.",
+      "processFailed": "Échec du traitement de l'image",
+      "dragOver": "Déposer l'image pour joindre",
+      "analysisUnsupported": "Note : L'analyse d'images n'est pas encore prise en charge. Les images sont stockées pour référence mais ne peuvent pas être analysées par le modèle.",
+      "screenshotTooLarge": "La capture d'écran est trop volumineuse ({{size}}Mo). La taille maximale est de {{max}}Mo. Essayez de capturer une zone plus petite.",
+      "notAnalyzed": "Les images ont été stockées pour référence mais n'ont pas été analysées par le modèle."
+    }
   },
   "ideation": {
     "converting": "Conversion...",

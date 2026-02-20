@@ -449,7 +449,22 @@
     "suggestedTask": "Suggested Task",
     "creating": "Creating...",
     "taskCreated": "Task Created",
-    "createTask": "Create Task"
+    "createTask": "Create Task",
+    "images": {
+      "pasteHint": "Paste an image or screenshot",
+      "dropHint": "Drop image here",
+      "screenshotButton": "Attach screenshot",
+      "removeImage": "Remove image",
+      "imageCount": "{{count}} image attached",
+      "imageCount_plural": "{{count}} images attached",
+      "maxImagesReached": "Maximum number of images reached",
+      "invalidType": "Invalid file type. Please use PNG, JPEG, GIF, or WebP.",
+      "processFailed": "Failed to process image",
+      "dragOver": "Drop image to attach",
+      "analysisUnsupported": "Note: Image analysis is not yet supported. Images are stored for reference but cannot be analyzed by the model.",
+      "screenshotTooLarge": "Screenshot is too large ({{size}}MB). Maximum size is {{max}}MB. Consider capturing a smaller area.",
+      "notAnalyzed": "Images were stored for reference but not analyzed by the model."
+    }
   },
   "ideation": {
     "converting": "Converting...",

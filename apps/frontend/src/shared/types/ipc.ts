@@ -777,7 +777,7 @@ export interface ElectronAPI {
 
   // Insights operations
   getInsightsSession: (projectId: string) => Promise<IPCResult<InsightsSession | null>>;
-  sendInsightsMessage: (projectId: string, message: string, modelConfig?: InsightsModelConfig) => void;
+  sendInsightsMessage: (projectId: string, message: string, modelConfig?: InsightsModelConfig, images?: ImageAttachment[]) => void;
   clearInsightsSession: (projectId: string) => Promise<IPCResult>;
   createTaskFromInsights: (
     projectId: string,
